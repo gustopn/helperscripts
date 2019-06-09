@@ -35,11 +35,11 @@ createPortsWorkDirs() {
 
 if [ "$#" -eq 0 ]
 then \
-  altRootPrefix
+  createPortsWorkDirs
 else \
   while [ "$#" -gt 0 ]
   do \
-    altRootPrefix $1
+    createPortsWorkDirs $1
     shift
   done
 fi
