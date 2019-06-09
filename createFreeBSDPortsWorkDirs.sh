@@ -1,19 +1,40 @@
 #!/bin/sh -x
 
-workDirPrefixPath="/usr/work"
-workDirLocalPortsbuildPath="${workDirPrefixPath}/local"
-workDirLocalDistfilesPath="${workDirPrefixPath}/distfiles"
-workDirLocalPackagesPath="${workDirPrefixPath}/packages"
+createPortsWorkDirs() {
 
-for workDirInstances in "$workDirLocalPortsbuildPath" "$workDirLocalDistfilesPath" "$workDirLocalPackagesPath"
-do \
-  if [ ! -e "${workDirInstances}" ]
+  altRootPrefix="$1"
+  if [ -n "${altRootPrefix}" ]
   then \
-    mkdir -p "${workDirInstances}"
+    if [ ! -d "${altRootPrefix}" ]
+    then \
+      return 1
+    fi
   fi
-done
 
-cp /etc/make.conf /etc/make.conf.old && grep -v "WRKDIRPREFIX=" /etc/make.conf.old | grep -v "DISTDIR=" | grep -v "PACKAGES=" > /etc/make.conf
-echo "WRKDIRPREFIX=${workDirLocalPortsbuildPath}" >> /etc/make.conf
-echo "DISTDIR=${workDirLocalDistfilesPath}" >> /etc/make.conf
-echo "PACKAGES=${workDirLocalPackagesPath}" >> /etc/make.conf
+  workDirPrefixPath="/usr/work"
+  workDirLocalPortsbuildPath="${workDirPrefixPath}/local"
+  workDirLocalDistfilesPath="${workDirPrefixPath}/distfiles"
+  workDirLocalPackagesPath="${workDirPrefixPath}/packages"
+
+  makeConfPath="/etc/make.conf"
+
+  for workDirInstances in "$workDirLocalPortsbuildPath" "$workDirLocalDistfilesPath" "$workDirLocalPackagesPath"
+  do \
+    if [ ! -e "${altRootPrefix}${workDirInstances}" ]
+    then \
+      mkdir -p "${altRootPrefix}${workDirInstances}"
+    fi
+  done
+
+  cp "${altRootPrefix}${makeConfPath}" "${altRootPrefix}${makeConfPath}.old" && grep -v "WRKDIRPREFIX=" "${altRootPrefix}${makeConfPath}.old" | grep -v "DISTDIR=" | grep -v "PACKAGES=" > "${altRootPrefix}${makeConfPath}"
+  echo "WRKDIRPREFIX=${workDirLocalPortsbuildPath}" >> "${altRootPrefix}${makeConfPath}"
+  echo "DISTDIR=${workDirLocalDistfilesPath}" >> "${altRootPrefix}${makeConfPath}"
+  echo "PACKAGES=${workDirLocalPackagesPath}" >> "${altRootPrefix}${makeConfPath}"
+
+}
+
+while [ "$#" -gt 0 ]
+do \
+  altRootPrefix $1
+  shift
+done
