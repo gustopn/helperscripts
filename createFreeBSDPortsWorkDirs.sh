@@ -33,8 +33,13 @@ createPortsWorkDirs() {
 
 }
 
-while [ "$#" -gt 0 ]
-do \
-  altRootPrefix $1
-  shift
-done
+if [ "$#" -eq 0 ]
+then \
+  altRootPrefix
+else \
+  while [ "$#" -gt 0 ]
+  do \
+    altRootPrefix $1
+    shift
+  done
+fi
